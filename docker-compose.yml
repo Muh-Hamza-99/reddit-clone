@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  postgres_db:
+    container_name: db_container
+    image: postgres:latest
+    restart: always
+    ports: 
+      - 5432:5432
+    env_file:
+      - .env
+    volumes: 
+      - postgres_db:/var/lib/pgsql/data
+
+  node_api:
+    container_name: api_container
+    build: ./server
+    ports: 
+      - 8000:8000
+    volumes: 
+      - .:/user/src/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres_db
+  react_app:
+    build: ./client
+    container_name: client_container
+    ports:
+      - 3000:3000
+    stdin_open: true
+    tty: true
+    volumes: 
+      - .:/user/src/app
+    depends_on:
+      - postgres_db
+
+volumes: 
+  postgres_db:
